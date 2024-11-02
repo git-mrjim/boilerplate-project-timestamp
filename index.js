@@ -19,11 +19,49 @@ app.get("/", function (req, res) {
 });
 
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-});
+// Timestamp Microservice
 
+function isTimestamp(value) {
+  
+  if (!isNaN(value)) {
+    let timestamp = Number(value);
+    return timestamp.toString().length === 13
+  } else {
+    return false;
+  }
+
+}
+
+function isDate(value) {
+ return isNaN(value) && !isNaN(Date.parse(value));
+}
+
+app.get('/api/:date?', function (req,res) {
+  let dateParams = req.params.date;
+
+  if (!dateParams) {
+    let date = new Date();
+    let specificDate = date.toUTCString();
+    let unixTimestamp = date.getTime();
+    
+    res.json({"unix": unixTimestamp, "utc": `${specificDate}`});
+  } else if (isDate(dateParams)) {
+    let date = new Date(req.params.date);
+    let specificDate = date.toUTCString();
+    let unixTimestamp = date.getTime();
+
+    res.json({"unix": unixTimestamp, "utc": `${specificDate}`});
+  }  else if (isTimestamp(dateParams)) {
+    let date = new Date(Number(req.params.date));
+    let specificDate = date.toUTCString();
+    let unixTimestamp = date.getTime();
+
+    res.json({"unix": unixTimestamp, "utc": `${specificDate}`});
+  } else {
+    res.json({ error : "Invalid Date" });
+  }
+
+});
 
 
 // Listen on port set in environment variable or default to 3000
